@@ -32,7 +32,9 @@ export default function Header() {
     <header className="site-header">
       <div className="inner">
         <Link href="/" className="brand">
-          🏆 {site.name}
+          {/* eslint-disable-next-line @next/next/no-img-element -- animated GIF, next/image would freeze it */}
+          <img src="/logo.gif" alt="tentwenty logo" className="brand-logo" />
+          {site.name}
         </Link>
         <nav className="nav">
           <Link href="/">Contests</Link>

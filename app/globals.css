@@ -1,12 +1,13 @@
+/* Palette derived from the tentwenty brand purple (#4B4DF7) */
 :root {
-  --bg: #0f1115;
-  --surface: #171a21;
-  --surface-2: #1e222b;
-  --border: #2a2f3a;
-  --text: #e8eaf0;
-  --muted: #9aa3b2;
-  --accent: #4f8cff;
-  --accent-hover: #6da1ff;
+  --bg: #0e0f1d;
+  --surface: #16172b;
+  --surface-2: #1d1f38;
+  --border: #2c2e4f;
+  --text: #e9eafb;
+  --muted: #9ea3c8;
+  --accent: #5b5ef8;
+  --accent-hover: #7d7ffa;
   --green: #34c77b;
   --red: #ef5b5b;
   --gold: #e8b23a;
@@ -61,6 +62,16 @@ a:hover {
   font-weight: 700;
   font-size: 1.05rem;
   color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.brand-logo {
+  height: 36px;
+  width: 36px;
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
 }
 .nav {
   display: flex;
@@ -254,7 +265,7 @@ th {
   background: var(--surface-2);
 }
 tr.you td {
-  background: rgba(79, 140, 255, 0.1);
+  background: rgba(91, 94, 248, 0.12);
 }
 
 h1 {

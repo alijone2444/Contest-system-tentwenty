@@ -2,7 +2,23 @@
 
 A Contest Participation System where users participate in contests, answer questions (single-select, multi-select, true/false), get scored, climb the leaderboard, and win prizes. Built for the **tentwenty** interview test.
 
-**Stack:** Next.js (App Router) · TypeScript · PostgreSQL · Prisma · JWT (jose) · Zod
+**Stack:** Next.js (App Router) · TypeScript · PostgreSQL (Neon) · Prisma · JWT (jose) · Zod
+
+## 🔗 Live Demo
+
+**https://contest-system-tentwenty.vercel.app**
+
+Test accounts (password for all: `password123`):
+
+| Role | Email | What to try |
+| --- | --- | --- |
+| ADMIN | `admin@example.com` | Access everything; create contests & finalize prizes via API/Postman |
+| VIP | `vip@example.com` | Can join both the normal and the **VIP Masters Cup** contest |
+| Normal user | `user@example.com` | Can join normal contests; gets **403** on the VIP contest |
+| Normal user | `sana@example.com` | Has an in-progress contest + a won prize (see *My History*) |
+| Guest | *(no login)* | Can view contests & leaderboards but cannot participate (401) |
+
+Suggested 2-minute walkthrough: browse as guest → login as `user@example.com` → join *General Knowledge Challenge* → answer & submit → check the leaderboard → open **My History**. Then login as `vip@example.com` for the VIP contest. For admin APIs (create/finalize) use the Postman collection below with the live URL as `baseUrl`.
 
 ## Features
 
