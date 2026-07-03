@@ -1,0 +1,286 @@
+{
+  "info": {
+    "name": "Contest Participation System",
+    "description": "Complete API collection. 1) Run the three Login requests (tokens are saved automatically). 2) Run 'List Contests (as User)' to auto-capture a contestId. 3) Explore the rest.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "adminToken", "value": "" },
+    { "key": "vipToken", "value": "" },
+    { "key": "userToken", "value": "" },
+    { "key": "contestId", "value": "" },
+    { "key": "questionId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Signup",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/auth/signup", "host": ["{{baseUrl}}"], "path": ["api", "auth", "signup"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New User\",\n  \"email\": \"newuser@example.com\",\n  \"password\": \"secret123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j.success) pm.collectionVariables.set('adminToken', j.data.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login (VIP)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j.success) pm.collectionVariables.set('vipToken', j.data.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"vip@example.com\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login (Normal User)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j.success) pm.collectionVariables.set('userToken', j.data.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Me (current user)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/auth/me", "host": ["{{baseUrl}}"], "path": ["api", "auth", "me"] }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/api/auth/logout", "host": ["{{baseUrl}}"], "path": ["api", "auth", "logout"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Contests",
+      "item": [
+        {
+          "name": "List Contests (as Guest)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/contests", "host": ["{{baseUrl}}"], "path": ["api", "contests"] }
+          }
+        },
+        {
+          "name": "List Contests (as User)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "const active = j.data?.contests?.find(c => c.canParticipate);",
+                  "if (active) pm.collectionVariables.set('contestId', active.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/contests", "host": ["{{baseUrl}}"], "path": ["api", "contests"] }
+          }
+        },
+        {
+          "name": "Create Contest (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/contests", "host": ["{{baseUrl}}"], "path": ["api", "contests"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman Demo Contest\",\n  \"description\": \"Created via Postman\",\n  \"accessLevel\": \"NORMAL\",\n  \"startTime\": \"2026-01-01T00:00:00Z\",\n  \"endTime\": \"2026-12-31T23:59:59Z\",\n  \"prize\": \"Rs. 10,000\",\n  \"questions\": [\n    {\n      \"text\": \"Capital of France?\",\n      \"type\": \"SINGLE_SELECT\",\n      \"points\": 2,\n      \"options\": [\n        { \"text\": \"Paris\", \"isCorrect\": true },\n        { \"text\": \"Berlin\", \"isCorrect\": false }\n      ]\n    },\n    {\n      \"text\": \"Select prime numbers\",\n      \"type\": \"MULTI_SELECT\",\n      \"points\": 3,\n      \"options\": [\n        { \"text\": \"2\", \"isCorrect\": true },\n        { \"text\": \"3\", \"isCorrect\": true },\n        { \"text\": \"4\", \"isCorrect\": false }\n      ]\n    },\n    {\n      \"text\": \"The earth is flat.\",\n      \"type\": \"TRUE_FALSE\",\n      \"points\": 1,\n      \"options\": [\n        { \"text\": \"True\", \"isCorrect\": false },\n        { \"text\": \"False\", \"isCorrect\": true }\n      ]\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Contest Detail",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/contests/{{contestId}}", "host": ["{{baseUrl}}"], "path": ["api", "contests", "{{contestId}}"] }
+          }
+        },
+        {
+          "name": "Join Contest",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/contests/{{contestId}}/join", "host": ["{{baseUrl}}"], "path": ["api", "contests", "{{contestId}}", "join"] }
+          }
+        },
+        {
+          "name": "Submit Answers",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{userToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/contests/{{contestId}}/submit", "host": ["{{baseUrl}}"], "path": ["api", "contests", "{{contestId}}", "submit"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"answers\": [\n    { \"questionId\": \"REPLACE_WITH_QUESTION_ID\", \"selectedOptionIds\": [\"REPLACE_WITH_OPTION_ID\"] }\n  ]\n}"
+            },
+            "description": "Get question/option ids from 'Get Contest Detail' (after joining)."
+          }
+        },
+        {
+          "name": "Leaderboard",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/contests/{{contestId}}/leaderboard?limit=50", "host": ["{{baseUrl}}"], "path": ["api", "contests", "{{contestId}}", "leaderboard"], "query": [{ "key": "limit", "value": "50" }] }
+          }
+        },
+        {
+          "name": "Finalize Contest (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/contests/{{contestId}}/finalize", "host": ["{{baseUrl}}"], "path": ["api", "contests", "{{contestId}}", "finalize"] },
+            "description": "Only works after the contest endTime has passed."
+          }
+        }
+      ]
+    },
+    {
+      "name": "My History",
+      "item": [
+        {
+          "name": "Contest History",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/me/history", "host": ["{{baseUrl}}"], "path": ["api", "me", "history"] }
+          }
+        },
+        {
+          "name": "In-Progress Contests",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/me/in-progress", "host": ["{{baseUrl}}"], "path": ["api", "me", "in-progress"] }
+          }
+        },
+        {
+          "name": "My Prizes",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/me/prizes", "host": ["{{baseUrl}}"], "path": ["api", "me", "prizes"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Edge Cases (expected errors)",
+      "item": [
+        {
+          "name": "Guest tries to join (401)",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/api/contests/{{contestId}}/join", "host": ["{{baseUrl}}"], "path": ["api", "contests", "{{contestId}}", "join"] }
+          }
+        },
+        {
+          "name": "Normal user creates contest (403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{userToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/contests", "host": ["{{baseUrl}}"], "path": ["api", "contests"] },
+            "body": { "mode": "raw", "raw": "{}" }
+          }
+        },
+        {
+          "name": "Unknown contest (404)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/contests/does-not-exist", "host": ["{{baseUrl}}"], "path": ["api", "contests", "does-not-exist"] }
+          }
+        },
+        {
+          "name": "Invalid signup body (400 validation)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/auth/signup", "host": ["{{baseUrl}}"], "path": ["api", "auth", "signup"] },
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"A\",\n  \"email\": \"not-an-email\",\n  \"password\": \"123\"\n}" }
+          }
+        }
+      ]
+    }
+  ]
+}

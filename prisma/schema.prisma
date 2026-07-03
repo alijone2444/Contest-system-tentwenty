@@ -1,0 +1,127 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  VIP
+  USER
+}
+
+enum ContestAccess {
+  NORMAL
+  VIP
+}
+
+enum QuestionType {
+  SINGLE_SELECT
+  MULTI_SELECT
+  TRUE_FALSE
+}
+
+enum ParticipationStatus {
+  IN_PROGRESS
+  SUBMITTED
+}
+
+model User {
+  id             String          @id @default(cuid())
+  name           String
+  email          String          @unique
+  password       String
+  role           Role            @default(USER)
+  createdAt      DateTime        @default(now())
+  participations Participation[]
+  prizes         Prize[]
+
+  @@index([role])
+}
+
+model Contest {
+  id             String          @id @default(cuid())
+  name           String
+  description    String
+  accessLevel    ContestAccess   @default(NORMAL)
+  startTime      DateTime
+  endTime        DateTime
+  prize          String
+  finalized      Boolean         @default(false)
+  createdAt      DateTime        @default(now())
+  questions      Question[]
+  participations Participation[]
+  prizesAwarded  Prize[]
+
+  @@index([accessLevel, startTime, endTime])
+}
+
+model Question {
+  id        String       @id @default(cuid())
+  contestId String
+  text      String
+  type      QuestionType
+  points    Int          @default(1)
+  order     Int          @default(0)
+  contest   Contest      @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  options   Option[]
+  answers   Answer[]
+
+  @@index([contestId])
+}
+
+model Option {
+  id         String   @id @default(cuid())
+  questionId String
+  text       String
+  isCorrect  Boolean  @default(false)
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+}
+
+model Participation {
+  id          String              @id @default(cuid())
+  userId      String
+  contestId   String
+  status      ParticipationStatus @default(IN_PROGRESS)
+  score       Int                 @default(0)
+  startedAt   DateTime            @default(now())
+  submittedAt DateTime?
+  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contest     Contest             @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  answers     Answer[]
+
+  @@unique([userId, contestId])
+  @@index([contestId, status, score])
+  @@index([userId, status])
+}
+
+model Answer {
+  id                String        @id @default(cuid())
+  participationId   String
+  questionId        String
+  selectedOptionIds Json
+  isCorrect         Boolean       @default(false)
+  participation     Participation @relation(fields: [participationId], references: [id], onDelete: Cascade)
+  question          Question      @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([participationId, questionId])
+}
+
+model Prize {
+  id        String   @id @default(cuid())
+  userId    String
+  contestId String
+  prizeName String
+  score     Int
+  awardedAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contest   Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, contestId])
+  @@index([userId])
+}
